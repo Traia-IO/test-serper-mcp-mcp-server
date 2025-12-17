@@ -11,9 +11,6 @@
     ],
     "capabilities": [
       "google_search",
-      "google_news_search",
-      "google_images_search",
-      "google_places_search",
       "get_api_info"
     ],
     "payment_protocol": "402",

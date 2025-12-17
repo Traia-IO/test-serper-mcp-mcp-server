@@ -108,36 +108,27 @@ logger.info(f"✅ FastMCP server created")
             )
         )
     ),
-    description="Perform Google search with advanced filtering and "
+    description="Perform a Google search using a single search quer"
 
 )
 async def google_search(
     context: Context,
-    q: str,
-    gl: str,
-    hl: str,
-    num: int,
-    autocorrect: bool,
-    page: int,
-    type: str
+    q: str
 ) -> Dict[str, Any]:
     """
-    Perform Google search with advanced filtering and location options
+    Perform a Google search using a single search query keyword. This endpoint takes only one required parameter: the search query string. Returns Google search results including organic results, answer boxes, and related searches.
 
     Generated from OpenAPI endpoint: POST /search
 
     Args:
         context: MCP context (injected automatically)
-        q: Search query
-        gl: Country code (e.g., us, uk, ca)
-        hl: Language code (e.g., en, es, fr)
-        num: Number of results (1-100)
-        autocorrect: Enable autocorrect
-        page: Page number
-        type: Search type (search, news, images, places, etc.)
+        q: The search query keyword or phrase to search for on Google. This is the only required parameter. Examples: 'artificial intelligence', 'python programming', 'best restaurants near me'. Do not include additional parameters - only provide the search query string. Examples: "artificial intelligence", "python programming", "best restaurants near me"
 
     Returns:
         Dictionary with API response
+
+    Example Usage:
+        await google_search(context, q="artificial intelligence")
     """
     # Payment already verified by @require_payment_for_tool decorator
     # Get API key using helper (handles request.state fallback)
@@ -154,12 +145,6 @@ async def google_search(
             url,
             json={
                 "q": q,
-                "gl": gl,
-                "hl": hl,
-                "num": num,
-                "autocorrect": autocorrect,
-                "page": page,
-                "type": type,
             },
             params=params,
             headers=headers,
@@ -172,216 +157,6 @@ async def google_search(
     except Exception as e:
         logger.error(f"Error in google_search: {e}")
         return {"error": str(e), "endpoint": "/search"}
-
-
-@mcp.tool()
-@require_payment_for_tool(
-    price=TokenAmount(
-        amount="3000",  # 0.003 tokens
-        asset=TokenAsset(
-            address="0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-            decimals=6,
-            network="sepolia",
-            eip712=EIP712Domain(
-                name="IATPWallet",
-                version="1"
-            )
-        )
-    ),
-    description="Search Google News with filtering options"
-
-)
-async def google_news_search(
-    context: Context,
-    q: str,
-    gl: str,
-    hl: str,
-    num: int,
-    tbs: str
-) -> Dict[str, Any]:
-    """
-    Search Google News with filtering options
-
-    Generated from OpenAPI endpoint: POST /news
-
-    Args:
-        context: MCP context (injected automatically)
-        q: News search query
-        gl: Country code
-        hl: Language code
-        num: Number of results
-        tbs: Time filter (qdr:h - past hour, qdr:d - past day, qdr:w - past week, qdr:m - past month, qdr:y - past year)
-
-    Returns:
-        Dictionary with API response
-    """
-    # Payment already verified by @require_payment_for_tool decorator
-    # Get API key using helper (handles request.state fallback)
-    api_key = get_active_api_key(context)
-
-    try:
-        url = f"https://google.serper.dev/news"
-        params = {}
-        headers = {}
-        if api_key:
-            headers["X-API-Key"] = api_key
-
-        response = requests.post(
-            url,
-            json={
-                "q": q,
-                "gl": gl,
-                "hl": hl,
-                "num": num,
-                "tbs": tbs,
-            },
-            params=params,
-            headers=headers,
-            timeout=30
-        )
-        response.raise_for_status()
-
-        return response.json()
-
-    except Exception as e:
-        logger.error(f"Error in google_news_search: {e}")
-        return {"error": str(e), "endpoint": "/news"}
-
-
-@mcp.tool()
-@require_payment_for_tool(
-    price=TokenAmount(
-        amount="2000",  # 0.002 tokens
-        asset=TokenAsset(
-            address="0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-            decimals=6,
-            network="sepolia",
-            eip712=EIP712Domain(
-                name="IATPWallet",
-                version="1"
-            )
-        )
-    ),
-    description="Search Google Images"
-
-)
-async def google_images_search(
-    context: Context,
-    q: str,
-    gl: str,
-    num: int
-) -> Dict[str, Any]:
-    """
-    Search Google Images
-
-    Generated from OpenAPI endpoint: POST /images
-
-    Args:
-        context: MCP context (injected automatically)
-        q: Image search query
-        gl: Country code
-        num: Number of results
-
-    Returns:
-        Dictionary with API response
-    """
-    # Payment already verified by @require_payment_for_tool decorator
-    # Get API key using helper (handles request.state fallback)
-    api_key = get_active_api_key(context)
-
-    try:
-        url = f"https://google.serper.dev/images"
-        params = {}
-        headers = {}
-        if api_key:
-            headers["X-API-Key"] = api_key
-
-        response = requests.post(
-            url,
-            json={
-                "q": q,
-                "gl": gl,
-                "num": num,
-            },
-            params=params,
-            headers=headers,
-            timeout=30
-        )
-        response.raise_for_status()
-
-        return response.json()
-
-    except Exception as e:
-        logger.error(f"Error in google_images_search: {e}")
-        return {"error": str(e), "endpoint": "/images"}
-
-
-@mcp.tool()
-@require_payment_for_tool(
-    price=TokenAmount(
-        amount="2000",  # 0.002 tokens
-        asset=TokenAsset(
-            address="0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-            decimals=6,
-            network="sepolia",
-            eip712=EIP712Domain(
-                name="IATPWallet",
-                version="1"
-            )
-        )
-    ),
-    description="Search Google Places/Maps"
-
-)
-async def google_places_search(
-    context: Context,
-    q: str,
-    gl: str,
-    ll: str
-) -> Dict[str, Any]:
-    """
-    Search Google Places/Maps
-
-    Generated from OpenAPI endpoint: POST /places
-
-    Args:
-        context: MCP context (injected automatically)
-        q: Place search query
-        gl: Country code
-        ll: Latitude,Longitude for location bias
-
-    Returns:
-        Dictionary with API response
-    """
-    # Payment already verified by @require_payment_for_tool decorator
-    # Get API key using helper (handles request.state fallback)
-    api_key = get_active_api_key(context)
-
-    try:
-        url = f"https://google.serper.dev/places"
-        params = {}
-        headers = {}
-        if api_key:
-            headers["X-API-Key"] = api_key
-
-        response = requests.post(
-            url,
-            json={
-                "q": q,
-                "gl": gl,
-                "ll": ll,
-            },
-            params=params,
-            headers=headers,
-            timeout=30
-        )
-        response.raise_for_status()
-
-        return response.json()
-
-    except Exception as e:
-        logger.error(f"Error in google_places_search: {e}")
-        return {"error": str(e), "endpoint": "/places"}
 
 
 # TODO: Add your API-specific functions here
