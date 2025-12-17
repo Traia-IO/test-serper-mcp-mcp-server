@@ -148,7 +148,7 @@ async def google_search(
         params = {}
         headers = {}
         if api_key:
-            headers["Authorization"] = f"Bearer {api_key}"
+            headers["X-API-Key"] = api_key
 
         response = requests.post(
             url,
@@ -224,7 +224,7 @@ async def google_news_search(
         params = {}
         headers = {}
         if api_key:
-            headers["Authorization"] = f"Bearer {api_key}"
+            headers["X-API-Key"] = api_key
 
         response = requests.post(
             url,
@@ -294,7 +294,7 @@ async def google_images_search(
         params = {}
         headers = {}
         if api_key:
-            headers["Authorization"] = f"Bearer {api_key}"
+            headers["X-API-Key"] = api_key
 
         response = requests.post(
             url,
@@ -362,7 +362,7 @@ async def google_places_search(
         params = {}
         headers = {}
         if api_key:
-            headers["Authorization"] = f"Bearer {api_key}"
+            headers["X-API-Key"] = api_key
 
         response = requests.post(
             url,
