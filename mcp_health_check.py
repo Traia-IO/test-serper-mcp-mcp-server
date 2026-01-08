@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-test-serper-mcp MCP Server Health Check Script
+Test Serper MCP MCP Server Health Check Script
 
-This script properly connects to the test-serper-mcp MCP server and checks its health by:
+This script properly connects to the Test Serper MCP MCP server and checks its health by:
 1. Establishing a session
 2. Requesting server info
 3. Listing available tools
@@ -57,8 +57,8 @@ def send_mcp_request(session: Dict[str, Any], method: str, params: Dict = None) 
         return {"error": str(e)}
 
 def check_mcp_server_health(url: str) -> bool:
-    """Check if test-serper-mcp MCP server is healthy"""
-    print(f"🔍 Checking test-serper-mcp MCP server health at {url}")
+    """Check if Test Serper MCP MCP server is healthy"""
+    print(f"🔍 Checking Test Serper MCP MCP server health at {url}")
     
     # Create session
     session = create_mcp_session(url)
@@ -91,13 +91,13 @@ def check_mcp_server_health(url: str) -> bool:
             print(f"📋 Available tools: {', '.join(tool_names)}")
             
             # Check for expected tools
-            expected_tools = ["example_tool", "get_api_info"]
+            expected_tools = ["example_tool"]
             missing_tools = [tool for tool in expected_tools if tool not in tool_names]
             
             if missing_tools:
                 print(f"⚠️  Missing expected tools: {', '.join(missing_tools)}")
             else:
-                print("✅ All expected test-serper-mcp tools are available!")
+                print("✅ All expected Test Serper MCP tools are available!")
     
     # Alternative: Try connecting with CrewAI adapter
     print("\n3️⃣ Testing CrewAI adapter connection...")
@@ -129,21 +129,21 @@ def check_mcp_server_health(url: str) -> bool:
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Check test-serper-mcp MCP Server Health")
+    parser = argparse.ArgumentParser(description="Check Test Serper MCP MCP Server Health")
     parser.add_argument("--url", default="http://localhost:8000", 
-                       help="test-serper-mcp MCP server URL (default: http://localhost:8000)")
+                       help="Test Serper MCP MCP server URL (default: http://localhost:8000)")
     args = parser.parse_args()
     
-    print(f"🚀 test-serper-mcp MCP Server Health Check")
+    print(f"🚀 Test Serper MCP MCP Server Health Check")
     print(f"📍 Server URL: {args.url}")
-    print(f"📰 Expected tools: example_tool, get_api_info")
+    print(f"📰 Expected tools: example_tool")
     print("="*50)
     
     if check_mcp_server_health(args.url):
-        print("\n✅ test-serper-mcp MCP Server is healthy and responding!")
+        print("\n✅ Test Serper MCP MCP Server is healthy and responding!")
         return 0
     else:
-        print("\n❌ test-serper-mcp MCP Server health check failed!")
+        print("\n❌ Test Serper MCP MCP Server health check failed!")
         return 1
 
 if __name__ == "__main__":

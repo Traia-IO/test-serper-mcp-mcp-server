@@ -1,11 +1,11 @@
-# test-serper-mcp MCP Server
+# Test Serper MCP MCP Server
 
-This is an MCP (Model Context Protocol) server that provides with authentication via Bearer tokens access to the test-serper-mcp API. It enables AI agents and LLMs to interact with test-serper-mcp through standardized tools.
+This is an MCP (Model Context Protocol) server that provides with authentication via Bearer tokens access to the Test Serper MCP API. It enables AI agents and LLMs to interact with Test Serper MCP through standardized tools.
 
 ## Features
 
 - 🔧 **MCP Protocol**: Built on the Model Context Protocol for seamless AI integration
-- 🌐 **Full API Access**: Provides tools for interacting with test-serper-mcp endpoints
+- 🌐 **Full API Access**: Provides tools for interacting with Test Serper MCP endpoints
 - 🔐 **Secure Authentication**: Supports API key authentication via Bearer tokens
 - 💳 **HTTP 402 Payment Protocol**: Dual-mode operation (authenticated or paid access)
 - 🔗 **D402 Integration**: Uses traia_iatp.d402 for blockchain payment verification
@@ -14,7 +14,7 @@ This is an MCP (Model Context Protocol) server that provides with authentication
 
 ## API Documentation
 
-- **test-serper-mcp Website**: [https://google.serper.dev](https://google.serper.dev)
+- **Test Serper MCP Website**: [https://google.serper.dev](https://google.serper.dev)
 - **API Documentation**: [https://serper.dev/docs](https://serper.dev/docs)
 
 ## Available Tools
@@ -22,9 +22,8 @@ This is an MCP (Model Context Protocol) server that provides with authentication
 This server provides the following tools:
 
 - **`example_tool`**: Placeholder tool (to be implemented)
-- **`get_api_info`**: Get information about the API service and authentication status
 
-*Note: Replace `example_tool` with actual test-serper-mcp API tools based on the documentation.*
+*Note: Replace `example_tool` with actual Test Serper MCP API tools based on the documentation.*
 
 ## Installation
 
@@ -38,7 +37,7 @@ This server provides the following tools:
 
 2. Set your API key:
    ```bash
-   export TEST_SERPER_MCP_API_KEY="your-api-key-here"
+   export SERPER_API_KEY="your-api-key-here"
    ```
 
 3. Run with Docker:
@@ -51,7 +50,7 @@ This server provides the following tools:
 1. Create a `.env` file with your configuration:
    ```env
 # Server's internal API key (for payment mode)
-   TEST_SERPER_MCP_API_KEY=your-api-key-here
+   SERPER_API_KEY=your-api-key-here
    
    # Server payment address (for HTTP 402 protocol)
    SERVER_ADDRESS=0x1234567890123456789012345678901234567890
@@ -79,7 +78,7 @@ PORT=8000
 
 2. Run the server:
    ```bash
-TEST_SERPER_MCP_API_KEY="your-api-key-here" uv run python -m server
+SERPER_API_KEY="your-api-key-here" uv run python -m server
    ```
 
 ## Usage
@@ -116,21 +115,21 @@ This server supports **two modes of operation**:
 
 ### Mode 1: Authenticated Access (Free)
 
-Clients with their own test-serper-mcp API key can use the server for free:
+Clients with their own Test Serper MCP API key can use the server for free:
 
 ```bash
 # Request with client's API key
 curl -X POST http://localhost:8000/mcp \
-  -H "Authorization: Bearer CLIENT_TEST_SERPER_MCP_API_KEY" \
+  -H "Authorization: Bearer CLIENT_SERPER_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"method":"tools/call","params":{"name":"example_tool","arguments":{"query":"test"}}}'
 ```
 
 **Flow**:
-1. Client provides their test-serper-mcp API key
-2. Server uses client's API key to call test-serper-mcp API
+1. Client provides their Test Serper MCP API key
+2. Server uses client's API key to call Test Serper MCP API
 3. No payment required
-4. Client pays test-serper-mcp directly
+4. Client pays Test Serper MCP directly
 
 ### Mode 2: Payment Required (Paid Access)
 
@@ -150,7 +149,7 @@ curl -X POST http://localhost:8000/mcp \
 3. Client creates EIP-3009 transferWithAuthorization payment signature
 4. Client base64-encodes payment and sends in X-PAYMENT header
 5. Server verifies payment via traia_iatp.d402.mcp_middleware
-6. Server uses its INTERNAL test-serper-mcp API key to call the API
+6. Server uses its INTERNAL Test Serper MCP API key to call the API
 7. Client receives result
 
 ### D402 Protocol Details
@@ -167,7 +166,7 @@ This server uses the **traia_iatp.d402** module for payment verification:
 
 ```bash
 # Required
-TEST_SERPER_MCP_API_KEY=your_internal_test-serper-mcp_api_key  # Server's API key (for payment mode)
+SERPER_API_KEY=your_internal_test-serper-mcp_api_key  # Server's API key (for payment mode)
 SERVER_ADDRESS=0x1234567890123456789012345678901234567890  # Server's payment address
 
 # Required for Settlement (Production)
@@ -193,7 +192,7 @@ They come from the endpoint configuration when the server is generated.
 ### How It Works
 
 1. **Client Decision**:
-   - Has test-serper-mcp API key? → Mode 1 (Authenticated)
+   - Has Test Serper MCP API key? → Mode 1 (Authenticated)
    - No API key but willing to pay? → Mode 2 (Payment)
 
 2. **Server Response**:
@@ -217,7 +216,7 @@ They come from the endpoint configuration when the server is generated.
 
 To add new tools, edit `server.py` and:
 
-1. Create API client functions for test-serper-mcp endpoints
+1. Create API client functions for Test Serper MCP endpoints
 2. Add `@mcp.tool()` decorated functions
 3. Update this README with the new tools
 4. Update `deployment_params.json` with the tool names in the capabilities array
@@ -233,20 +232,19 @@ The `deployment_params.json` file contains the deployment configuration for this
   "github_url": "https://github.com/Traia-IO/test-serper-mcp-mcp-server",
   "mcp_server": {
     "name": "test-serper-mcp-mcp",
-    "description": "Test deployment of serper google search api - search, news, images, places via serper.dev",
+    "description": "Test deployment of serper.dev api for google search integration",
     "server_type": "streamable-http",
 "requires_api_key": true,
     "api_key_header": "Authorization",
 "capabilities": [
       // List all implemented tool names here
-      "example_tool",
-      "get_api_info"
+      "example_tool"
     ]
   },
   "deployment_method": "cloud_run",
   "gcp_project_id": "traia-mcp-servers",
   "gcp_region": "us-central1",
-  "tags": ["test-serper-mcp", "api"],
+  "tags": ["test serper mcp", "api"],
   "ref": "main"
 }
 ```
@@ -266,7 +264,7 @@ This server is designed to be deployed on Google Cloud Run. The deployment will:
 - `PORT`: Server port (default: 8000)
 - `STAGE`: Environment stage (default: MAINNET, options: MAINNET, TESTNET)
 - `LOG_LEVEL`: Logging level (default: INFO)
-- `TEST_SERPER_MCP_API_KEY`: Your test-serper-mcp API key (required)
+- `SERPER_API_KEY`: Your Test Serper MCP API key (required)
 ## Troubleshooting
 
 1. **Server not starting**: Check Docker logs with `docker logs <container-id>`

@@ -2,16 +2,18 @@
   "github_url": "https://github.com/Traia-IO/test-serper-mcp-mcp-server",
   "mcp_server": {
     "name": "test-serper-mcp-mcp",
-    "description": "Test deployment of serper google search api - search, news, images, places via serper.dev",
+    "description": "Test deployment of serper.dev api for google search integration",
     "server_type": "streamable-http",
     "requires_api_key": true,
     "api_key_header": "Authorization",
     "api_keys": [
-      "TEST_SERPER_MCP_API_KEY"
+      "SERPER_API_KEY"
     ],
     "capabilities": [
       "google_search",
-      "get_api_info"
+      "google_news_search",
+      "google_images_search",
+      "google_places_search"
     ],
     "payment_protocol": "402",
     "dual_mode": true,
@@ -21,7 +23,7 @@
   "gcp_project_id": "traia-mcp-servers",
   "gcp_region": "us-central1",
   "tags": [
-    "test-serper-mcp",
+    "test serper mcp",
     "api",
     "mcp"
   ],

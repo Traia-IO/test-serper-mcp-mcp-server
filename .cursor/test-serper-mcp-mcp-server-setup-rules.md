@@ -1,33 +1,33 @@
-# test-serper-mcp MCP Server Implementation Guide
+# Test Serper MCP MCP Server Implementation Guide
 
-You are working on implementing the test-serper-mcp MCP (Model Context Protocol) server. The basic structure has been set up, and your task is to implement the actual API integration.
+You are working on implementing the Test Serper MCP MCP (Model Context Protocol) server. The basic structure has been set up, and your task is to implement the actual API integration.
 
 ## API Information
 
-- **API Name**: test-serper-mcp
+- **API Name**: Test Serper MCP
 - **Documentation**: [https://serper.dev/docs](https://serper.dev/docs)
 - **Website**: [https://google.serper.dev](https://google.serper.dev)
-- **Authentication**: Required - API key via `TEST_SERPER_MCP_API_KEY` environment variable
+- **Authentication**: Required - API key via `SERPER_API_KEY` environment variable
 ## 🔒 HTTP 402 Payment Protocol - Dual-Mode Operation
 
 This MCP server implements the **HTTP 402 Payment Required** protocol using the **traia_iatp.d402** module with dual-mode support:
 
 ### Mode 1: Authenticated (Free Access)
 
-When a client provides their own test-serper-mcp API key:
+When a client provides their own Test Serper MCP API key:
 
 ```
 Request Headers:
   Authorization: Bearer CLIENT_API_KEY
 
 Flow:
-  1. Client connects with their test-serper-mcp API key
-  2. MCP server uses client's API key to call test-serper-mcp API
+  1. Client connects with their Test Serper MCP API key
+  2. MCP server uses client's API key to call Test Serper MCP API
   3. No payment required
-  4. Client pays test-serper-mcp directly (not the MCP server)
+  4. Client pays Test Serper MCP directly (not the MCP server)
 ```
 
-**Use Case**: Clients who already have a test-serper-mcp subscription/API key
+**Use Case**: Clients who already have a Test Serper MCP subscription/API key
 
 ### Mode 2: Payment Required (Paid Access)
 
@@ -59,11 +59,11 @@ Flow:
   1. Client creates EIP-3009 transferWithAuthorization signature
   2. Client sends Payment header with encoded payment payload
   3. MCP server verifies payment using traia_iatp.d402.facilitator
-  4. MCP server uses its INTERNAL test-serper-mcp API key to call the API
-  5. Client pays the MCP server (not test-serper-mcp)
+  4. MCP server uses its INTERNAL Test Serper MCP API key to call the API
+  5. Client pays the MCP server (not Test Serper MCP)
 ```
 
-**Use Case**: Pay-per-use clients without their own test-serper-mcp subscription
+**Use Case**: Pay-per-use clients without their own Test Serper MCP subscription
 
 ### D402 Protocol Integration
 
@@ -120,7 +120,7 @@ async def your_tool_name(context: Context, param1: str) -> Dict[str, Any]:
         api_key_to_use = api_key
     else:
         # MODE 2: Use server's internal API key (client paid)
-        api_key_to_use = os.getenv("TEST_SERPER_MCP_API_KEY")
+        api_key_to_use = os.getenv("SERPER_API_KEY")
     
     # Call API
     headers = {"Authorization": f"Bearer {api_key_to_use}"}
@@ -157,7 +157,7 @@ Therefore:
 ### Environment Variables
 
 **Required**:
-- `TEST_SERPER_MCP_API_KEY`: Server's internal test-serper-mcp API key (used when clients pay via 402)
+- `SERPER_API_KEY`: Server's internal Test Serper MCP API key (used when clients pay via 402)
 - `SERVER_ADDRESS`: MCP server's payment address (where 402 payments are sent)
 
 **Required for Settlement (Production)**:
@@ -172,7 +172,7 @@ Therefore:
 **Example .env file**:
 ```bash
 # API Authentication (server's internal key for payment mode)
-TEST_SERPER_MCP_API_KEY=your_test-serper-mcp_api_key_here
+SERPER_API_KEY=your_test-serper-mcp_api_key_here
 
 # Server Payment Address (where 402 payments are received)
 SERVER_ADDRESS=0x1234567890123456789012345678901234567890
@@ -216,7 +216,7 @@ These come from the endpoint configuration in the database/OpenAPI schema.
       // Add all other tools you implement
     ]
   },
-  "tags": ["test-serper-mcp", "api", /* add relevant tags like "search", "data", etc. */]
+  "tags": ["test serper mcp", "api", /* add relevant tags like "search", "data", etc. */]
 }
 ```
 
@@ -231,7 +231,7 @@ First, thoroughly review the API documentation at https://serper.dev/docs to und
 
 ### 3. Implement API Client Functions
 
-Add functions to call the test-serper-mcp API with retry support. Example pattern:
+Add functions to call the Test Serper MCP API with retry support. Example pattern:
 
 ```python
 from retry import retry
@@ -239,7 +239,7 @@ from retry import retry
 # Using requests library with retry decorator
 @retry(tries=2, delay=1, backoff=2, jitter=(1, 3))
 def call_test_serper_mcp_api(endpoint: str, params: Dict[str, Any], api_key: str) -> Dict[str, Any]:
-    """Call test-serper-mcp API endpoint with automatic retry."""
+    """Call Test Serper MCP API endpoint with automatic retry."""
     base_url = "https://api.example.com/v1"  # TODO: Get actual base URL from docs
     
     headers = {
@@ -256,7 +256,7 @@ def call_test_serper_mcp_api(endpoint: str, params: Dict[str, Any], api_key: str
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
-        raise Exception(f"test-serper-mcp API error: {str(e)}")
+        raise Exception(f"Test Serper MCP API error: {str(e)}")
 ```
 
 #### Retry Configuration Explained
@@ -279,7 +279,7 @@ async def search_test_serper_mcp(
     limit: int = 10
 ) -> Dict[str, Any]:
     """
-    Search test-serper-mcp for [specific data type].
+    Search Test Serper MCP for [specific data type].
     
     Args:
         context: MCP context (injected automatically)
@@ -336,7 +336,7 @@ async def create_test_serper_mcp_item(
     data: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Create a new item in test-serper-mcp.
+    Create a new item in Test Serper MCP.
     
     Args:
         context: MCP context (injected automatically)
@@ -463,17 +463,17 @@ Before marking the implementation as complete:
 - [ ] Health check passes
 - [ ] At least one tool works end-to-end
 
-### 9. Common test-serper-mcp Use Cases
+### 9. Common Test Serper MCP Use Cases
 
 Based on the API documentation, consider implementing tools for these common use cases:
 
-1. **TODO**: List specific use cases based on test-serper-mcp capabilities
+1. **TODO**: List specific use cases based on Test Serper MCP capabilities
 2. **TODO**: Add more relevant use cases
 3. **TODO**: Include any special features of this API
 
 ### 10. Example API Calls
 
-Here are some example API calls from the test-serper-mcp documentation that you should implement:
+Here are some example API calls from the Test Serper MCP documentation that you should implement:
 
 ```
 TODO: Add specific examples from the API docs
@@ -481,8 +481,8 @@ TODO: Add specific examples from the API docs
 
 ## Need Help?
 
-- Check the test-serper-mcp API documentation: https://serper.dev/docs
+- Check the Test Serper MCP API documentation: https://serper.dev/docs
 - Review the MCP specification: https://modelcontextprotocol.io
 - Look at other MCP server examples in the Traia-IO organization
 
-Remember: The goal is to make test-serper-mcp's capabilities easily accessible to AI agents through standardized MCP tools. 
+Remember: The goal is to make Test Serper MCP's capabilities easily accessible to AI agents through standardized MCP tools. 

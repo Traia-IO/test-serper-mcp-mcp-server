@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to build and run the test-serper-mcp MCP Server locally in Docker
+# Script to build and run the Test Serper MCP MCP Server locally in Docker
 
 set -e  # Exit on error
 
@@ -17,7 +17,7 @@ CONTAINER_NAME="test-serper-mcp-mcp-local"
 HOST_PORT=${PORT:-8000}
 CONTAINER_PORT=${PORT:-8000}
 
-echo -e "${BLUE}🚀 Building and running test-serper-mcp MCP Server...${NC}"
+echo -e "${BLUE}🚀 Building and running Test Serper MCP MCP Server...${NC}"
 echo
 
 # Setup .env file for local development
@@ -32,13 +32,13 @@ if [ ! -f .env ]; then
         echo -e "${YELLOW}⚠️  .env.example not found, creating minimal .env template...${NC}"
         # Create minimal .env template
         cat > .env << EOF
-# test-serper-mcp MCP Server Configuration
+# Test Serper MCP MCP Server Configuration
 PORT=8000
 STAGE=MAINNET
 LOG_LEVEL=INFO
 
 # API Authentication (server's internal key for payment mode)
-TEST_SERPER_MCP_API_KEY=
+SERPER_API_KEY=
 # D402 Payment Protocol Configuration
 SERVER_ADDRESS=
 MCP_OPERATOR_PRIVATE_KEY=
@@ -197,31 +197,31 @@ else
 fi
 
 # Step 5: Prompt for API key if required (only if not already set)
-if ! grep -q "^TEST_SERPER_MCP_API_KEY=[^[:space:]]" .env; then
+if ! grep -q "^SERPER_API_KEY=[^[:space:]]" .env; then
     if [ -t 0 ]; then
         echo ""
-        echo -e "${YELLOW}📝 Please enter your test-serper-mcp API key:${NC}"
+        echo -e "${YELLOW}📝 Please enter your Test Serper MCP API key:${NC}"
         echo -e "${YELLOW}   (This is the server's internal API key used when clients pay via 402)${NC}"
-        read -p "TEST_SERPER_MCP_API_KEY: " API_KEY_VALUE
+        read -p "SERPER_API_KEY: " API_KEY_VALUE
         if [ -n "$API_KEY_VALUE" ]; then
-            if grep -q "^TEST_SERPER_MCP_API_KEY=" .env; then
+            if grep -q "^SERPER_API_KEY=" .env; then
                 if [[ "$OSTYPE" == "darwin"* ]]; then
-                    sed -i '' "s|^TEST_SERPER_MCP_API_KEY=.*|TEST_SERPER_MCP_API_KEY=$API_KEY_VALUE|" .env
+                    sed -i '' "s|^SERPER_API_KEY=.*|SERPER_API_KEY=$API_KEY_VALUE|" .env
                 else
-                    sed -i "s|^TEST_SERPER_MCP_API_KEY=.*|TEST_SERPER_MCP_API_KEY=$API_KEY_VALUE|" .env
+                    sed -i "s|^SERPER_API_KEY=.*|SERPER_API_KEY=$API_KEY_VALUE|" .env
                 fi
             else
-                echo "TEST_SERPER_MCP_API_KEY=$API_KEY_VALUE" >> .env
+                echo "SERPER_API_KEY=$API_KEY_VALUE" >> .env
             fi
             echo -e "${GREEN}✅ API key saved to .env${NC}"
         else
             echo -e "${YELLOW}⚠️  No API key provided. You can set it later in .env${NC}"
         fi
     else
-        echo -e "${YELLOW}⚠️  Non-interactive mode: Please set TEST_SERPER_MCP_API_KEY in .env manually${NC}"
+        echo -e "${YELLOW}⚠️  Non-interactive mode: Please set SERPER_API_KEY in .env manually${NC}"
     fi
 else
-    echo -e "${GREEN}✅ TEST_SERPER_MCP_API_KEY already set in .env${NC}"
+    echo -e "${GREEN}✅ SERPER_API_KEY already set in .env${NC}"
 fi
 
 echo ""
@@ -362,7 +362,7 @@ CONTAINER_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress
 
 # Output connection information
 echo
-echo -e "${GREEN}✅ test-serper-mcp MCP Server is running!${NC}"
+echo -e "${GREEN}✅ Test Serper MCP MCP Server is running!${NC}"
 echo
 echo -e "${BLUE}📍 Connection Information:${NC}"
 echo -e "   Local URL:        ${GREEN}http://localhost:${HOST_PORT}/mcp${NC}"

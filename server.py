@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-test-serper-mcp MCP Server - FastMCP with D402 Transport Wrapper
+Test Serper MCP MCP Server - FastMCP with D402 Transport Wrapper
 
 Uses FastMCP from official MCP SDK with D402MCPTransport wrapper for HTTP 402.
 
@@ -12,7 +12,7 @@ Architecture:
 Generated from OpenAPI: https://serper.dev/docs
 
 Environment Variables:
-- TEST_SERPER_MCP_API_KEY: Server's internal API key (for paid requests)
+- SERPER_API_KEY: Server's internal API key (for paid requests)
 - SERVER_ADDRESS: Payment address (IATP wallet contract)
 - MCP_OPERATOR_PRIVATE_KEY: Operator signing key
 - D402_TESTING_MODE: Skip facilitator (default: true)
@@ -21,7 +21,7 @@ Environment Variables:
 import os
 import logging
 import sys
-from typing import Dict, Any, Optional
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
 from datetime import datetime
 
 import requests
@@ -57,19 +57,19 @@ SERVER_ADDRESS = os.getenv("SERVER_ADDRESS")
 if not SERVER_ADDRESS:
     raise ValueError("SERVER_ADDRESS required for payment protocol")
 
-API_KEY = os.getenv("TEST_SERPER_MCP_API_KEY")
+API_KEY = os.getenv("SERPER_API_KEY")
 if not API_KEY:
-    logger.warning(f"⚠️  TEST_SERPER_MCP_API_KEY not set - payment required for all requests")
+    logger.warning(f"⚠️  SERPER_API_KEY not set - payment required for all requests")
 
 logger.info("="*80)
-logger.info(f"test-serper-mcp MCP Server (FastMCP + D402 Wrapper)")
+logger.info(f"Test Serper MCP MCP Server (FastMCP + D402 Wrapper)")
 logger.info(f"API: https://google.serper.dev")
 logger.info(f"Payment: {SERVER_ADDRESS}")
 logger.info(f"API Key: {'✅' if API_KEY else '❌ Payment required'}")
 logger.info("="*80)
 
 # Create FastMCP server
-mcp = FastMCP("test-serper-mcp MCP Server", host="0.0.0.0")
+mcp = FastMCP("Test Serper MCP MCP Server", host="0.0.0.0")
 
 logger.info(f"✅ FastMCP server created")
 
@@ -97,9 +97,9 @@ logger.info(f"✅ FastMCP server created")
 @mcp.tool()
 @require_payment_for_tool(
     price=TokenAmount(
-        amount="3000",  # 0.003 tokens
+        amount="3000000000000000",  # 0.003 tokens
         asset=TokenAsset(
-            address="0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+            address="0x3e17730bb2ca51a8D5deD7E44c003A2e95a4d822",
             decimals=6,
             network="sepolia",
             eip712=EIP712Domain(
@@ -108,27 +108,41 @@ logger.info(f"✅ FastMCP server created")
             )
         )
     ),
-    description="Perform a Google search using a single search quer"
+    description="Perform Google search with advanced filtering and "
 
 )
 async def google_search(
     context: Context,
-    q: str
+    q: Optional[str] = None,
+    gl: str = "us",
+    hl: str = "en",
+    num: int = 10,
+    autocorrect: bool = True,
+    page: int = 1,
+    type: str = "search"
 ) -> Dict[str, Any]:
     """
-    Perform a Google search using a single search query keyword. This endpoint takes only one required parameter: the search query string. Returns Google search results including organic results, answer boxes, and related searches.
+    Perform Google search with advanced filtering and location options
 
     Generated from OpenAPI endpoint: POST /search
 
     Args:
-        context: MCP context (injected automatically)
-        q: The search query keyword or phrase to search for on Google. This is the only required parameter. Examples: 'artificial intelligence', 'python programming', 'best restaurants near me'. Do not include additional parameters - only provide the search query string. Examples: "artificial intelligence", "python programming", "best restaurants near me"
+        context: MCP context (auto-injected by framework, not user-provided)
+        q: Search query (optional) Examples: "artificial intelligence", "python programming", "best restaurants"
+        gl: Country code (e.g., us, uk, ca) (optional, default: "us") Examples: "us", "gb", "ca"
+        hl: Language code (e.g., en, es, fr) (optional, default: "en") Examples: "en", "es", "fr"
+        num: Number of results (1-100) (optional, default: 10)
+        autocorrect: Enable autocorrect (optional, default: True)
+        page: Page number (optional, default: 1)
+        type: Search type (search, news, images, places, etc.) (optional, default: "search") Examples: "search", "news"
 
     Returns:
         Dictionary with API response
 
     Example Usage:
-        await google_search(context, q="artificial intelligence")
+        await google_search(q="artificial intelligence")
+
+        Note: 'context' parameter is auto-injected by MCP framework
     """
     # Payment already verified by @require_payment_for_tool decorator
     # Get API key using helper (handles request.state fallback)
@@ -140,12 +154,20 @@ async def google_search(
         headers = {}
         if api_key:
             headers["X-API-Key"] = api_key
+            # Also send Bearer for robustness (most APIs use Bearer)
+            headers["Authorization"] = f"Bearer {api_key}"
 
         response = requests.post(
             url,
-            json={
+            json={k: v for k, v in {
                 "q": q,
-            },
+                "gl": gl,
+                "hl": hl,
+                "num": num,
+                "autocorrect": autocorrect,
+                "page": page,
+                "type": type,
+            }.items() if v is not None},
             params=params,
             headers=headers,
             timeout=30
@@ -157,6 +179,237 @@ async def google_search(
     except Exception as e:
         logger.error(f"Error in google_search: {e}")
         return {"error": str(e), "endpoint": "/search"}
+
+
+@mcp.tool()
+@require_payment_for_tool(
+    price=TokenAmount(
+        amount="3000000000000000",  # 0.003 tokens
+        asset=TokenAsset(
+            address="0x3e17730bb2ca51a8D5deD7E44c003A2e95a4d822",
+            decimals=6,
+            network="sepolia",
+            eip712=EIP712Domain(
+                name="IATPWallet",
+                version="1"
+            )
+        )
+    ),
+    description="Search Google News with filtering options"
+
+)
+async def google_news_search(
+    context: Context,
+    q: Optional[str] = None,
+    gl: str = "us",
+    hl: str = "en",
+    num: int = 10,
+    tbs: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Search Google News with filtering options
+
+    Generated from OpenAPI endpoint: POST /news
+
+    Args:
+        context: MCP context (auto-injected by framework, not user-provided)
+        q: News search query (optional) Examples: "bitcoin news", "climate change", "tech industry"
+        gl: Country code (optional, default: "us") Examples: "us", "gb", "ca"
+        hl: Language code (optional, default: "en") Examples: "en", "es", "fr"
+        num: Number of results (optional, default: 10)
+        tbs: Time filter (qdr:h - past hour, qdr:d - past day, qdr:w - past week, qdr:m - past month, qdr:y - past year) (optional) Examples: "qdr:d", "qdr:w"
+
+    Returns:
+        Dictionary with API response
+
+    Example Usage:
+        await google_news_search(q="bitcoin news")
+
+        Note: 'context' parameter is auto-injected by MCP framework
+    """
+    # Payment already verified by @require_payment_for_tool decorator
+    # Get API key using helper (handles request.state fallback)
+    api_key = get_active_api_key(context)
+
+    try:
+        url = f"https://google.serper.dev/news"
+        params = {}
+        headers = {}
+        if api_key:
+            headers["X-API-Key"] = api_key
+            # Also send Bearer for robustness (most APIs use Bearer)
+            headers["Authorization"] = f"Bearer {api_key}"
+
+        response = requests.post(
+            url,
+            json={k: v for k, v in {
+                "q": q,
+                "gl": gl,
+                "hl": hl,
+                "num": num,
+                "tbs": tbs,
+            }.items() if v is not None},
+            params=params,
+            headers=headers,
+            timeout=30
+        )
+        response.raise_for_status()
+
+        return response.json()
+
+    except Exception as e:
+        logger.error(f"Error in google_news_search: {e}")
+        return {"error": str(e), "endpoint": "/news"}
+
+
+@mcp.tool()
+@require_payment_for_tool(
+    price=TokenAmount(
+        amount="2000000000000000",  # 0.002 tokens
+        asset=TokenAsset(
+            address="0x3e17730bb2ca51a8D5deD7E44c003A2e95a4d822",
+            decimals=6,
+            network="sepolia",
+            eip712=EIP712Domain(
+                name="IATPWallet",
+                version="1"
+            )
+        )
+    ),
+    description="Search Google Images"
+
+)
+async def google_images_search(
+    context: Context,
+    q: Optional[str] = None,
+    gl: str = "us",
+    num: int = 10
+) -> Dict[str, Any]:
+    """
+    Search Google Images
+
+    Generated from OpenAPI endpoint: POST /images
+
+    Args:
+        context: MCP context (auto-injected by framework, not user-provided)
+        q: Image search query (optional) Examples: "mountain landscape", "golden retriever", "modern architecture"
+        gl: Country code (optional, default: "us") Examples: "us", "gb", "ca"
+        num: Number of results (optional, default: 10)
+
+    Returns:
+        Dictionary with API response
+
+    Example Usage:
+        await google_images_search(q="mountain landscape")
+
+        Note: 'context' parameter is auto-injected by MCP framework
+    """
+    # Payment already verified by @require_payment_for_tool decorator
+    # Get API key using helper (handles request.state fallback)
+    api_key = get_active_api_key(context)
+
+    try:
+        url = f"https://google.serper.dev/images"
+        params = {}
+        headers = {}
+        if api_key:
+            headers["X-API-Key"] = api_key
+            # Also send Bearer for robustness (most APIs use Bearer)
+            headers["Authorization"] = f"Bearer {api_key}"
+
+        response = requests.post(
+            url,
+            json={k: v for k, v in {
+                "q": q,
+                "gl": gl,
+                "num": num,
+            }.items() if v is not None},
+            params=params,
+            headers=headers,
+            timeout=30
+        )
+        response.raise_for_status()
+
+        return response.json()
+
+    except Exception as e:
+        logger.error(f"Error in google_images_search: {e}")
+        return {"error": str(e), "endpoint": "/images"}
+
+
+@mcp.tool()
+@require_payment_for_tool(
+    price=TokenAmount(
+        amount="2000000000000000",  # 0.002 tokens
+        asset=TokenAsset(
+            address="0x3e17730bb2ca51a8D5deD7E44c003A2e95a4d822",
+            decimals=6,
+            network="sepolia",
+            eip712=EIP712Domain(
+                name="IATPWallet",
+                version="1"
+            )
+        )
+    ),
+    description="Search Google Places/Maps"
+
+)
+async def google_places_search(
+    context: Context,
+    q: Optional[str] = None,
+    gl: str = "us",
+    ll: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Search Google Places/Maps
+
+    Generated from OpenAPI endpoint: POST /places
+
+    Args:
+        context: MCP context (auto-injected by framework, not user-provided)
+        q: Place search query (optional) Examples: "coffee shops near me", "restaurants in San Francisco", "hotels in Tokyo"
+        gl: Country code (optional, default: "us") Examples: "us", "gb", "ca"
+        ll: Latitude,Longitude for location bias (e.g., 40.7128,-74.0060) (optional) Examples: "40.7128,-74.0060", "37.7749,-122.4194"
+
+    Returns:
+        Dictionary with API response
+
+    Example Usage:
+        await google_places_search(q="coffee shops near me")
+
+        Note: 'context' parameter is auto-injected by MCP framework
+    """
+    # Payment already verified by @require_payment_for_tool decorator
+    # Get API key using helper (handles request.state fallback)
+    api_key = get_active_api_key(context)
+
+    try:
+        url = f"https://google.serper.dev/places"
+        params = {}
+        headers = {}
+        if api_key:
+            headers["X-API-Key"] = api_key
+            # Also send Bearer for robustness (most APIs use Bearer)
+            headers["Authorization"] = f"Bearer {api_key}"
+
+        response = requests.post(
+            url,
+            json={k: v for k, v in {
+                "q": q,
+                "gl": gl,
+                "ll": ll,
+            }.items() if v is not None},
+            params=params,
+            headers=headers,
+            timeout=30
+        )
+        response.raise_for_status()
+
+        return response.json()
+
+    except Exception as e:
+        logger.error(f"Error in google_places_search: {e}")
+        return {"error": str(e), "endpoint": "/places"}
 
 
 # TODO: Add your API-specific functions here
@@ -221,8 +474,9 @@ def create_app_with_middleware():
         allow_credentials=True,
         allow_methods=["*"],  # Allow all methods
         allow_headers=["*"],  # Allow all headers
+        expose_headers=["mcp-session-id"],  # Expose custom headers to browser
     )
-    logger.info("✅ Added CORS middleware (allow all origins)")
+    logger.info("✅ Added CORS middleware (allow all origins, expose mcp-session-id)")
     
     # Add D402 payment middleware with extracted configs
     app.add_middleware(
@@ -257,7 +511,7 @@ def create_app_with_middleware():
 
 if __name__ == "__main__":
     logger.info("="*80)
-    logger.info(f"Starting test-serper-mcp MCP Server")
+    logger.info(f"Starting Test Serper MCP MCP Server")
     logger.info("="*80)
     logger.info("Architecture:")
     logger.info("  1. D402PaymentMiddleware intercepts requests")
